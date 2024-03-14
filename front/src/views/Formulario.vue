@@ -177,13 +177,21 @@ input[type="radio"] {
 }
 
 .result-container h2 {
+  text-align: center;
   margin-bottom: 10px;
   color: #000000;
+  padding-right: 100px;
+  white-space: nowrap;
   
 }
 
 .text-style{
   font-size: 15px;
   font-weight: bold;
+}
+
+.radio-group label{
+  padding-right: 50px;
+  white-space: nowrap;
 }
 </style>
