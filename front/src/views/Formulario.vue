@@ -21,9 +21,10 @@
       <div class="form-group">
         <label for="opcaoSelect">Seleciona uma Opção:</label>
         <select id="opcaoSelect" v-model="form.opcaoSelect" required>
-          <option name="check" value="opcao1">Opção 1</option>
-          <option name="check" value="opcao2">Opção 2</option>
-          <option name="check" value="opcao3">Opção 3</option>
+          <option value="" disabled selected>Selecione uma opção</option>
+          <option value="opcao1">Opção 1</option>
+          <option value="opcao2">Opção 2</option>
+          <option value="opcao3">Opção 3</option>
         </select>
       </div>
 
@@ -42,14 +43,14 @@
       <button type="submit" class="submit-button">Enviar</button>
     </form>
 
-    <!-- Seção de resultados -->
+   
     <div class="result-container" v-if="showResults">
       <h2>Resultados:</h2>
-      <p>Nome: {{ form.texto }}</p>
-      <p>Número: {{ form.inteiro }}</p>
-      <p>Aceita os termos: {{ form.booleano ? 'Sim' : 'Não' }}</p>
-      <p>Opção selecionada: {{ form.opcaoSelect }}</p>
-      <p>Opção de rádio selecionada: {{ form.opcaoRadio }}</p>
+      <p><span class="text-style">Nome: </span>{{ form.texto }}</p>
+      <p><span class="text-style">Número: </span>{{ form.inteiro }}</p>
+      <p><span class="text-style">Aceita os termos:</span> {{ form.booleano ? 'Sim' : 'Não' }}</p>
+      <p><span class="text-style">Opção selecionada:</span> {{ form.opcaoSelect }}</p>
+      <p><span class="text-style">Opção de rádio selecionada: </span>{{ form.opcaoRadio }}</p>
     </div>
   </div>
 </template>
@@ -66,24 +67,24 @@ export default {
         opcaoSelect: '',
         opcaoRadio: ''
       },
-      showResults: false // Para controlar a exibição dos resultados
+      showResults: false 
     };
   },
   methods: {
     async submitForm() {
-      await api.post('/formulario', this.form).then(response => {
+      try {
+        const response = await api.post(api.defaults.baseURL + '/formulario', this.form);
         console.log(response.data);
-        this.showResults = true; // Mostrar os resultados após o envio do formulário
-      }).catch(error => {
+        this.showResults = true; 
+      } catch (error) {
         console.error('Erro:', error);
-      });
+      }
     }
   }
 }
 </script>
 
 <style>
-/* Estilos do formulário */
 .form-container {
   display: flex;
   justify-content: center;
@@ -92,49 +93,62 @@ export default {
 }
 
 .form {
-  max-width: 400px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  width: 400px;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #bfb3e9;
 }
 
 .form-title {
   text-align: center;
   margin-bottom: 20px;
+  color: #333;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 label {
   display: block;
   margin-bottom: 5px;
+  color: #060606;
 }
 
 input[type="text"],
 input[type="number"],
 select {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
+  padding: 10px;
+  border: 1px solid #181414;
   border-radius: 5px;
+  font-size: 16px;
 }
 
-.radio-group {
+.checkbox-group {
   display: flex;
   align-items: center;
 }
 
+.checkbox-group label {
+  margin-left: 5px;
+}
+
+.radio-group {
+  display: flex;
+  align-items: normal;
+}
+
 input[type="radio"] {
-  margin-right: 5px;
+  margin-right: 10px;
 }
 
 .submit-button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   background-color: #007bff;
-  color: #fff;
+  color: #151414;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -145,11 +159,23 @@ input[type="radio"] {
   background-color: #0056b3;
 }
 
-/* Estilos dos resultados */
 .result-container {
   margin-top: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgb(27, 20, 20);
+  background-color: #7c66cc;
+  color: #111111d5;
+}
+
+.result-container h2 {
+  margin-bottom: 10px;
+  color: #000000;
+  
+}
+
+.text-style{
+  font-size: 15px;
+  font-weight: bold;
 }
 </style>
