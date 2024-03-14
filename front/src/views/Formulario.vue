@@ -46,11 +46,11 @@
    
     <div class="result-container" v-if="showResults">
       <h2>Resultados:</h2>
-      <p><span class="text-style">Nome: </span>{{ form.texto }}</p>
-      <p><span class="text-style">Número: </span>{{ form.inteiro }}</p>
-      <p><span class="text-style">Aceita os termos:</span> {{ form.booleano ? 'Sim' : 'Não' }}</p>
-      <p><span class="text-style">Opção selecionada:</span> {{ form.opcaoSelect }}</p>
-      <p><span class="text-style">Opção de rádio selecionada: </span>{{ form.opcaoRadio }}</p>
+      <p><span class="text-style">Nome: </span>{{ tabela1.texto||""}}</p>
+      <p><span class="text-style">Número: </span>{{ tabela1.inteiro||0 }}</p>
+      <p><span class="text-style">Aceita os termos:</span> {{ tabela1.booleano ? 'Sim' : 'Não' }}</p>
+      <p><span class="text-style">Opção selecionada:</span> {{ tabela1.opcaoSelect }}</p>
+      <p><span class="text-style">Opção de rádio selecionada: </span>{{ tabela1.opcaoRadio }}</p>
     </div>
   </div>
 </template>
@@ -60,6 +60,13 @@ import api from '../service';
 export default {
   data() {
     return {
+      tabela1: {
+        texto: '',
+        inteiro: null,
+        booleano: false,
+        opcaoSelect: '',
+        opcaoRadio: ''
+      },
       form: {
         texto: '',
         inteiro: null,
@@ -75,6 +82,7 @@ export default {
       try {
         const response = await api.post(api.defaults.baseURL + '/formulario', this.form);
         console.log(response.data);
+        this.tabela1 = response.data
         this.showResults = true; 
       } catch (error) {
         console.error('Erro:', error);
