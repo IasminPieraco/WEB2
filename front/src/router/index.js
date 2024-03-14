@@ -15,6 +15,11 @@ const router = createRouter({
  
       
       component: () => import('../views/AboutView.vue')
+    },
+    {
+      path:'/formulario',
+      name:'Formulario',
+      component:()=>import('../views/Formulario.vue')
     }
   ]
 })

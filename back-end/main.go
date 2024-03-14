@@ -1,38 +1,42 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 
-	r := mux.NewRouter()
-	r.HandleFunc("/teste", handleCORS(handleTeste))
-	r.HandleFunc("/teste/{valor}", handleCORS(handleTesteParam))
-	r.HandleFunc("/exercicio3", handleCORS(handleQuery))
+	r := chi.NewRouter()
+
+	// Configurando as opções do CORS
+	cors := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Permitir solicitações de qualquer origem
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Tempo em segundos para a informação do preflight ser armazenada em cache
+	})
+	// Aplicar as configurações de CORS para todas as rotas
+	r.Use(cors.Handler)
+	r.Get("/teste", handleTeste)
+	r.Get("/teste/{valor}", handleTesteParam)
+	r.Get("/exercicio3", handleQuery)
+	r.Post("/formulario", handleFormulario)
+
 	// Iniciando o servidor na porta 8081
 	fmt.Println("Servidor escutando na porta :8081")
 	err := http.ListenAndServe(":8081", r)
 	if err != nil {
 		fmt.Println("Erro ao iniciar o servidor:", err)
 	}
-}
 
-func handleCORS(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		next.ServeHTTP(w, r)
-	}
 }
 
 // handleTeste é o handler para a nova rota /teste
@@ -56,4 +60,29 @@ func handleQuery(w http.ResponseWriter, r *http.Request) {
 	quantidade := valores.Get("quantidade")
 	resposta := fmt.Sprintf("Rota /exercicio3 executou com sucesso recebendo o valor %s e quantidade %s!", valor, quantidade)
 	fmt.Fprintf(w, resposta)
+}
+
+type FormData struct {
+	Texto       string `json:"texto"`
+	Inteiro     int    `json:"inteiro"`
+	Booleano    bool   `json:"booleano"`
+	OpcaoSelect string `json:"opcaoSelect"`
+	OpcaoRadio  string `json:"opcaoRadio"`
+}
+
+func handleFormulario(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var formData FormData
+	if err := json.NewDecoder(r.Body).Decode(&formData); err != nil {
+		http.Error(w, "Erro ao decodificar JSON", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(formData)
 }
