@@ -42,6 +42,7 @@ func main() {
 // handleTeste é o handler para a nova rota /teste
 func handleTeste(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Rota /teste executou com sucesso!")
+	fmt.Println("Rota teste executou no back")
 }
 
 // handleTesteParam é o handler para a rota /teste/{param}
@@ -49,6 +50,7 @@ func handleTesteParam(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	param := vars["valor"]
 	fmt.Fprintf(w, "Rota /teste/%s executou com sucesso!", param)
+	fmt.Println("Recebe um valor %s", param)
 
 }
 
@@ -60,6 +62,7 @@ func handleQuery(w http.ResponseWriter, r *http.Request) {
 	quantidade := valores.Get("quantidade")
 	resposta := fmt.Sprintf("Rota /exercicio3 executou com sucesso recebendo o valor %s e quantidade %s!", valor, quantidade)
 	fmt.Fprintf(w, resposta)
+	fmt.Println("Ta vindo pro banco o valor %s e quantidade %s ", valor, quantidade)
 }
 
 type FormData struct {
@@ -80,6 +83,23 @@ func handleFormulario(w http.ResponseWriter, r *http.Request) {
 	var formData FormData
 	if err := json.NewDecoder(r.Body).Decode(&formData); err != nil {
 		http.Error(w, "Erro ao decodificar JSON", http.StatusBadRequest)
+		return
+	}
+	// Verificar se o campo Texto é válido
+	if len(formData.Texto) < 2 || len(formData.Texto) > 255 {
+		http.Error(w, "O texto precisa ter entre 2 e 255 caracteres", http.StatusBadRequest)
+		return
+	}
+
+	// Verificar se o campo Inteiro é válido
+	if formData.Inteiro <= 0 || formData.Inteiro >= 1000 {
+		http.Error(w, "O número precisa ser maior que 0 e menor que 1000", http.StatusBadRequest)
+		return
+	}
+
+	// Verificar se os campos Booleano, OpcaoSelect e OpcaoRadio são obrigatórios
+	if formData.Booleano == false || formData.OpcaoSelect == "" || formData.OpcaoRadio == "" {
+		http.Error(w, "Os campos booleano, opcaoSelect e opcaoRadio são obrigatórios", http.StatusBadRequest)
 		return
 	}
 

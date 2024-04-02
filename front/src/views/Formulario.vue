@@ -14,7 +14,7 @@
       </div>
 
       <div class="form-group">
-        <input type="checkbox" id="booleano" v-model="form.booleano">
+        <input type="checkbox" id="booleano" v-model="form.booleano" required>
         <label for="booleano">Aceita os termos</label>
       </div>
 
@@ -30,7 +30,7 @@
 
       <div class="form-group">
         <label>Escolha uma Opção:</label>
-        <div class="radio-group">
+        <div class="radio-group" >
           <input type="radio" id="radio1" value="opcao1" v-model="form.opcaoRadio">
           <label for="radio1">Opção 1</label>
           <input type="radio" id="radio2" value="opcao2" v-model="form.opcaoRadio">
@@ -78,12 +78,67 @@ export default {
     };
   },
   methods: {
+
+    validate() {
+      let flag = true, errorMensage = "";
+      if (!this.name_validade()) {
+        errorMensage += "O nome precisa ter no mínimo 2 e no máximo 255 caracteres\n"
+        flag = false
+      }
+
+      if (!this.number_validade()) {
+        errorMensage += "O número precisa ser maior que 0 e menor que 1000\n"
+        flag = false
+      }
+
+      if (!this.radio_validate()) {
+        errorMensage += "Selecione uma opção\n"
+        flag = false
+      }
+
+      return [flag, errorMensage]
+    },
+
+    name_validade() {
+      let size = this.form.texto.length
+      if (size >= 2 && size <= 255) return true;
+      return false;
+    },
+
+    number_validade() {
+      let num = this.form.inteiro
+      if (num < 0 || num >= 1000) return false;
+      return true;
+
+    },
+
+    radio_validate() {
+      let op = this.form.opcaoRadio;
+
+      if (op == '') return false;
+      return true;
+    },
+
+    reset_form(){
+      this.form.showResults = true;
+      this.form.texto = '',
+      this.form.inteiro = null,
+      this.form.booleano = false,
+      this.form.opcaoSelect = '',
+      this.form.opcaoRadio = ''      
+    },
+
     async submitForm() {
       try {
-        const response = await api.post(api.defaults.baseURL + '/formulario', this.form);
-        console.log(response.data);
-        this.tabela1 = response.data
-        this.showResults = true; 
+        let [flag, errorMensage] = this.validate();
+        if(flag) {
+          const response = await api.post(api.defaults.baseURL + '/formulario', this.form);
+          console.log(response.data);
+          this.tabela1 = response.data
+          this.showResults = true;
+          this.reset_form();
+
+        } else alert(errorMensage)
       } catch (error) {
         console.error('Erro:', error);
       }
